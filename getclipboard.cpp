@@ -1,6 +1,9 @@
 #include "getclipboard.h"
 #include <QClipboard>
+#include<QFile>
 #include <QDesktopServices>
+#include<QDebug>
+#include<QProcess>
 #pragma execution_character_set("utf-8")		//防止乱码
 getclipboard::getclipboard(QWidget *parent)
 	: QMainWindow(parent)
@@ -28,9 +31,10 @@ getclipboard::getclipboard(QWidget *parent)
     connect(this, &getclipboard::sengMsgToThread, thread, &MyThread::recMegFromMain);
 
 
-
+    connect(ui.downMVBtn,SIGNAL(clicked()),this,SLOT(downMVBtnClicked()));
 	connect(ui.clear_btn, SIGNAL(clicked()), this, SLOT(clear_btn_Clicked()));
 	connect(ui.copy_btn, SIGNAL(clicked()), this, SLOT(copy_btn_Clicked()));
+    connect(ui.batBtn,SIGNAL(clicked()),this,SLOT(batBtnClicked()));
 
 }
 void getclipboard::openUrl(QString url)
@@ -102,3 +106,39 @@ void getclipboard::copy_btn_Clicked() {
 	ui.clipboard_text->append("已复制到剪贴板");
 }
 
+//生成批处理命令
+void getclipboard::batBtnClicked(){
+    QString link = ui.clipboard_text->toPlainText();
+    QFile file("youtube一键下载到当前目录.bat");
+    //已读写方式打开文件，
+        //如果文件不存在会自动创建文件
+        if(!file.open(QIODevice::ReadWrite)){
+            qDebug()<<"打开失败";
+        }else{
+            qDebug()<<"打开成功";
+        }
+        //获得文件大小
+            qint64 pos;
+            pos = file.size();
+            //重新定位文件输入位置，这里是定位到文件尾端
+            file.seek(pos);
+
+            //写入文件
+            qint64 length = -1;
+            length = file.write(link.toLatin1(),link.length());
+
+            if(length == -1){
+                qDebug()<<"写入文件失败";
+            }else{
+                qDebug()<<"写入文件成功";
+            }
+
+            //关闭文件
+            file.close();
+}
+
+//执行批处理程序
+void getclipboard::downMVBtnClicked(){
+    QProcess downMV(this);
+    downMV.startDetached("youtube一键下载到当前目录.bat");
+}

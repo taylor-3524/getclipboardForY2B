@@ -24,6 +24,8 @@ public slots:
 	void copy_btn_Clicked();
 	void stop_btn_Clicked();	//Í£Ö¹Ïß³Ì²Ûº¯Êý
     void openUrl(QString);
+    void batBtnClicked();
+    void downMVBtnClicked();
 
 private:
 	Ui::getclipboardClass ui;
